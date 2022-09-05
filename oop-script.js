@@ -4,6 +4,8 @@ class App {
     static async run() {
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
+        const gener = await APIService.fetchGenres()
+        HomePage.renderGeners(gener);
     }
 }
 
@@ -24,6 +26,23 @@ class APIService {
     static _constructUrl(path) {
         return `${this.TMDB_BASE_URL}/${path}?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}`;
     }
+    static async fetchGenres() {
+        const url = APIService._constructUrl(`genre/movie/list`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data.results.map(genre => new Genres(genre))
+    }
+
+
+}
+class Genres {
+    constructor(json) {
+        this.id = json.id;
+        this.name = json.name;
+
+
+    }
+
 }
 
 class HomePage {
@@ -57,6 +76,18 @@ class HomePage {
             movieCard.appendChild(movieDiv);
             row.appendChild(movieCard);
             this.container.appendChild(row);
+        })
+    }
+    static genres = document.querySelector(".dropdown-menu");
+    static renderGeners(geners) {
+        geners.forEach(gener => {
+            const genresLi = document.createElement("li")
+            G.textContent = `${Genres.genres}`;;
+
+            genresLi.addEventListener("click", () => {
+                Genres.run(gener)
+            })
+            this.geners.appendChild(genresLi)
         })
     }
 }

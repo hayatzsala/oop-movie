@@ -1,19 +1,141 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <title>Movie</title>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
-<body>
-    <div id="container" class="container overflow-hidden">
-    </div>
-    <script src="./oop-script.js"></script>
-    <!-- <script type="text/javascript" src="script.js"></script> -->
-</body>
+
+        <link rel="stylesheet" href="style.css">
+        <title>Movie</title>
+    </head>
+
+    <body>
+        <section id="nav">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <a class="navbar-brand m-0" href="https://www.themoviedb.org/" target="_blank"><img
+                            class="img-fluid" width="140"
+                            src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
+                            alt="TMBD logo"></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#"
+                                    onclick="App.run('now_playing')">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Actors</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Movie Genres
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <!-- <li>
+                                        <a class="dropdown-item" href="#" onclick="">Action</a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" href="#">Adventure</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Animation</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Comedy</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Crime</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Documentary</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Drama</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Family</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Family</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">History</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Horror</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Music</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Mystery</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Romance</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Sci-Fi</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">Thriller</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">TV Movie</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#">War</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="App.run(37)">Western</a>
+                                    </li> -->
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Filter
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#">Movie Genres</a></li>
+                                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " href="#" tabindex="-1" aria-disabled="true">About</a>
+                            </li>
+                        </ul>
+                        <form class="d-flex">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </section>
+        <div id="container" class="container">
+        </div>
+        <script src="./oop-script.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+        <!-- <script type="text/javascript" src="script.js"></script> -->
+    </body>
 
 </html>
