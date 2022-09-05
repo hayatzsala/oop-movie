@@ -48,19 +48,34 @@ class Genres {
 class HomePage {
     static container = document.getElementById('container');
     static renderMovies(movies) {
+        const row = document.createElement('div');
+        row.className="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
         movies.forEach(movie => {
+            const movieCard = document.createElement("div");
+            movieCard.className="col card";
             const movieDiv = document.createElement("div");
+            movieDiv.className="card-body";
             const movieImage = document.createElement("img");
+           // movieImage.className = "card-img-top";
             movieImage.src = `${movie.backdropUrl}`;
             const movieTitle = document.createElement("h3");
+            movieTitle.className = "card-title"; 
             movieTitle.textContent = `${movie.title}`;
-            movieImage.addEventListener("click", function () {
+
+            const rate = document.createElement('div');
+            rate.innerHTML=`<span>Rate : ${movie.rate}</span>`;
+
+            movieImage.addEventListener("click", function() {
                 Movies.run(movie);
             });
 
             movieDiv.appendChild(movieTitle);
+            movieDiv.appendChild(rate);
             movieDiv.appendChild(movieImage);
-            this.container.appendChild(movieDiv);
+
+            movieCard.appendChild(movieDiv);
+            row.appendChild(movieCard);
+            this.container.appendChild(row);
         })
     }
     static genres = document.querySelector(".dropdown-menu");
@@ -124,6 +139,10 @@ class Movie {
         this.runtime = json.runtime + " minutes";
         this.overview = json.overview;
         this.backdropPath = json.backdrop_path;
+        this.rate = json.vote_average;
+        this.genres = json.genres;
+        console.log(this.genres)
+        console.log(json);
     }
 
     get backdropUrl() {
