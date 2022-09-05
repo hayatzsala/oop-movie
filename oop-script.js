@@ -6,6 +6,7 @@ class App {
         HomePage.renderMovies(movies);
         const gener = await APIService.fetchGenres()
         HomePage.renderGeners(gener);
+
     }
 }
 
@@ -24,25 +25,39 @@ class APIService {
         return new Movie(data)
     }
     static _constructUrl(path) {
-        return `${this.TMDB_BASE_URL}/${path}?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}`;
+        return `${this.TMDB_BASE_URL}/${path}?api_key=cdeca57a6b1c37accb142bc8de4bf9e6`;
     }
     static async fetchGenres() {
         const url = APIService._constructUrl(`genre/movie/list`)
         const response = await fetch(url)
         const data = await response.json()
-        return data.results.map(genre => new Genres(genre))
+        console.log(data);
+       // debugger;
+        return data.genres.map(genre => new Genres(genre))
     }
 
+    static async fetchMoviesByGenre(gener){
+        const url = APIService._constructUrl(`discover/movie`);
+        const fullUrl = `${url}&with_genres=${gener.id}`;
+        console.log(url);
+        //debugger;
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data);
+        return data.results.map(movie => new Movie(movie));
+    }
 
 }
 class Genres {
     constructor(json) {
         this.id = json.id;
         this.name = json.name;
-
+    }
+    static async run(genre){
+        const movies = await APIService.fetchMoviesByGenre(genre);
+        HomePage.renderMovies(movies);
 
     }
-
 }
 
 class HomePage {
@@ -79,15 +94,16 @@ class HomePage {
         })
     }
     static genres = document.querySelector(".dropdown-menu");
-    static renderGeners(geners) {
-        geners.forEach(gener => {
+    static renderGeners(genres) {
+        genres.forEach(genre => {
             const genresLi = document.createElement("li")
-            G.textContent = `${Genres.genres}`;;
+            genresLi.textContent = `${genre.name}`;;
 
             genresLi.addEventListener("click", () => {
-                Genres.run(gener)
+                Genres.run(genre)
+                
             })
-            this.geners.appendChild(genresLi)
+            this.genres.appendChild(genresLi);
         })
     }
 }
