@@ -167,3 +167,4 @@ class Movie {
 }
 
 document.addEventListener("DOMContentLoaded", App.run);
+
