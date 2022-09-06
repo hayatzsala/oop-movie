@@ -2,11 +2,10 @@
 
 class App {
     static async run() {
+        const gener = await APIService.fetchGenres()
+        Genre.renderGeners(gener);
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
-        const gener = await APIService.fetchGenres()
-        Genres.renderGeners(gener);
-
     }
 }
 
@@ -31,9 +30,11 @@ class APIService {
         const url = APIService._constructUrl(`genre/movie/list`)
         const response = await fetch(url)
         const data = await response.json()
-       // console.log(data);
+        //debugger;
+        Genres.genresList=[...data.genres];
+        console.log(Genres.genresList);
        // debugger;
-        return data.genres.map(genre => new Genres(genre))
+        return data.genres.map(genre => new Genre(genre))
     }
 
     static async fetchMoviesByGenre(gener){
@@ -43,12 +44,15 @@ class APIService {
         //debugger;
         const response = await fetch(fullUrl);
         const data = await response.json();
-        console.log(data);
+        //console.log(data);
         return data.results.map(movie => new Movie(movie));
     }
 
 }
-class Genres {
+class Genres{
+    static genresList = [];
+}
+class Genre {
     constructor(json) {
         this.id = json.id;
         this.name = json.name;
@@ -65,7 +69,7 @@ class Genres {
             genresLi.textContent = `${genre.name}`;;
 
             genresLi.addEventListener("click", () => {
-                Genres.run(genre)
+                Genre.run(genre)
                 
             })
             this.genres.appendChild(genresLi);
@@ -97,13 +101,19 @@ class HomePage {
             const rate = document.createElement('div');
             rate.innerHTML=`<span>Rate : ${movie.rate}</span>`;
 
+            const description = document.createElement('div');
+            description.innerHTML=`<p>${movie.overview}</p>`;
+            description.id = "desc";
+
             movieImage.addEventListener("click", function() {
                 Movies.run(movie);
             });
 
             movieDiv.appendChild(movieTitle);
+            movieDiv.appendChild(genres);
             movieDiv.appendChild(rate);
             movieDiv.appendChild(movieImage);
+            movieDiv.appendChild(description);
 
             movieCard.appendChild(movieDiv);
             row.appendChild(movieCard);
@@ -111,7 +121,19 @@ class HomePage {
         })
     }
     static renderMoviesGenre(movie){
+            let genreList = '<span>';
+           // debugger;
+            movie.genres.forEach(id =>{
+                //debugger
+                let genreName = Genres.genresList.find(genre=>{
+                    //debugger;
+                    return genre.id === id;
+                });
+                //console.log("movie genres",genreName);
 
+                genreList+=` ${genreName.name} , `;
+            });
+            return genreList + '</span>';
     }
 }
 
@@ -164,8 +186,8 @@ class Movie {
         this.backdropPath = json.backdrop_path;
         this.rate = json.vote_average;
         this.genres = json.genre_ids;        ;
-        console.log(this.genres)
-        console.log(json);
+       // console.log(this.genres)
+        //console.log(json);
     }
 
     get backdropUrl() {
