@@ -5,7 +5,7 @@ class App {
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
         const gener = await APIService.fetchGenres()
-        HomePage.renderGeners(gener);
+        Genres.renderGeners(gener);
 
     }
 }
@@ -31,7 +31,7 @@ class APIService {
         const url = APIService._constructUrl(`genre/movie/list`)
         const response = await fetch(url)
         const data = await response.json()
-        console.log(data);
+       // console.log(data);
        // debugger;
         return data.genres.map(genre => new Genres(genre))
     }
@@ -39,9 +39,9 @@ class APIService {
     static async fetchMoviesByGenre(gener){
         const url = APIService._constructUrl(`discover/movie`);
         const fullUrl = `${url}&with_genres=${gener.id}`;
-        console.log(url);
+        console.log(fullUrl);
         //debugger;
-        const response = await fetch(url);
+        const response = await fetch(fullUrl);
         const data = await response.json();
         console.log(data);
         return data.results.map(movie => new Movie(movie));
@@ -58,11 +58,25 @@ class Genres {
         HomePage.renderMovies(movies);
 
     }
+    static genres = document.querySelector(".dropdown-menu");
+    static renderGeners(genres) {
+        genres.forEach(genre => {
+            const genresLi = document.createElement("li")
+            genresLi.textContent = `${genre.name}`;;
+
+            genresLi.addEventListener("click", () => {
+                Genres.run(genre)
+                
+            })
+            this.genres.appendChild(genresLi);
+        })
+    }
 }
 
 class HomePage {
     static container = document.getElementById('container');
     static renderMovies(movies) {
+        this.container.innerHTML='';
         const row = document.createElement('div');
         row.className="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
         movies.forEach(movie => {
@@ -71,11 +85,14 @@ class HomePage {
             const movieDiv = document.createElement("div");
             movieDiv.className="card-body";
             const movieImage = document.createElement("img");
-           // movieImage.className = "card-img-top";
+            movieImage.className = "card-img-top";
             movieImage.src = `${movie.backdropUrl}`;
             const movieTitle = document.createElement("h3");
             movieTitle.className = "card-title"; 
             movieTitle.textContent = `${movie.title}`;
+
+            const genres = document.createElement('div');
+            genres.innerHTML=this.renderMoviesGenre(movie);
 
             const rate = document.createElement('div');
             rate.innerHTML=`<span>Rate : ${movie.rate}</span>`;
@@ -93,18 +110,8 @@ class HomePage {
             this.container.appendChild(row);
         })
     }
-    static genres = document.querySelector(".dropdown-menu");
-    static renderGeners(genres) {
-        genres.forEach(genre => {
-            const genresLi = document.createElement("li")
-            genresLi.textContent = `${genre.name}`;;
+    static renderMoviesGenre(movie){
 
-            genresLi.addEventListener("click", () => {
-                Genres.run(genre)
-                
-            })
-            this.genres.appendChild(genresLi);
-        })
     }
 }
 
@@ -156,13 +163,32 @@ class Movie {
         this.overview = json.overview;
         this.backdropPath = json.backdrop_path;
         this.rate = json.vote_average;
-        this.genres = json.genres;
+        this.genres = json.genre_ids;        ;
         console.log(this.genres)
         console.log(json);
     }
 
     get backdropUrl() {
         return this.backdropPath ? Movie.BACKDROP_BASE_URL + this.backdropPath : "";
+    }
+}
+
+class AboutPage{
+    static container = document.getElementById('container');
+    static renderAbout(){
+        this.container.innerHTML=`
+        <div class="row">
+            <div class="col-3">
+            <img
+                class="img-fluid" width="140"
+                src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg"
+                alt="TMBD logo">
+            </div>
+            <div class="col-8">
+            <p>Thia wbsite provided you all the movies you looking for and with all info you need to know from trailers to rates and descriptions about it</p>
+            </div>
+        </div>
+        `;
     }
 }
 
