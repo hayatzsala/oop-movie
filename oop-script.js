@@ -12,8 +12,8 @@ class App {
 
 class APIService {
     static TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-    static async fetchMovies() {
-        const url = APIService._constructUrl(`movie/now_playing`)
+    static async fetchMovies(filter = "now_playing") {
+        const url = APIService._constructUrl(`movie/${filter}`)
         const response = await fetch(url)
         const data = await response.json()
         return data.results.map(movie => new Movie(movie))
@@ -150,6 +150,15 @@ class Actors {
     `;
     }
 
+
+}
+
+class Filter {
+    static async filterMovies(filter) {
+        const movies = await APIService.fetchMovies(filter)
+        HomePage.renderMovies(movies);
+
+    }
 
 }
 
