@@ -6,6 +6,7 @@ class App {
         Genre.renderGeners(gener);
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
+
     }
 }
 
@@ -31,25 +32,34 @@ class APIService {
         const response = await fetch(url)
         const data = await response.json()
         //debugger;
-        Genres.genresList=[...data.genres];
-        console.log(Genres.genresList);
-       // debugger;
+        Genres.genresList = [...data.genres];
+        // console.log(Genres.genresList);
+        // debugger;
         return data.genres.map(genre => new Genre(genre))
     }
 
-    static async fetchMoviesByGenre(gener){
+    static async fetchMoviesByGenre(gener) {
         const url = APIService._constructUrl(`discover/movie`);
         const fullUrl = `${url}&with_genres=${gener.id}`;
         console.log(fullUrl);
         //debugger;
         const response = await fetch(fullUrl);
+        console.log(response);
         const data = await response.json();
-        //console.log(data);
+        // console.log(data);
         return data.results.map(movie => new Movie(movie));
+    }
+    static async fetchActors() {
+        const url = APIService._constructUrl(`person/popular`);
+        const response = await fetch(url);
+        console.log(response)
+        const data = await response.json();
+        // console.log(data);
+        return data.results.map(actor => new Actor(actor));
     }
 
 }
-class Genres{
+class Genres {
     static genresList = [];
 }
 class Genre {
@@ -57,9 +67,10 @@ class Genre {
         this.id = json.id;
         this.name = json.name;
     }
-    static async run(genre){
+    static async run(genre) {
         const movies = await APIService.fetchMoviesByGenre(genre);
         HomePage.renderMovies(movies);
+
 
     }
     static genres = document.querySelector(".dropdown-menu");
@@ -70,42 +81,121 @@ class Genre {
 
             genresLi.addEventListener("click", () => {
                 Genre.run(genre)
-                
+
             })
             this.genres.appendChild(genresLi);
         })
     }
 }
 
+class Actors {
+    static actorList = [];
+    static container = document.getElementById('container');
+    static async run() {
+        const actors = await APIService.fetchActors()
+        this.renderActors(actors);
+    }
+    static renderActors(actors) {
+        this.container.innerHTML = '';
+        const row = document.createElement('div');
+        row.className = "row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
+        actors.forEach(actor => {
+            const actorCard = document.createElement("div");
+            actorCard.className = "col card";
+            const actorDiv = document.createElement("div");
+            actorDiv.className = "card-body";
+            const actorImage = document.createElement("img");
+            actorImage.className = "card-img-top";
+            actorImage.src = `${actor.ProfileUrl}`;
+            const nameTitle = document.createElement("h3");
+            nameTitle.className = "card-title";
+            nameTitle.textContent = `${actor.name}`;
+
+
+
+            const popularity = document.createElement('div');
+            popularity.innerHTML = `<span>Popularity: ${actor.popularity}</span>`;
+
+
+
+            actorImage.addEventListener("click", function () {
+                Actors.renderActor(actor);
+            });
+
+            actorDiv.appendChild(nameTitle);
+
+            actorDiv.appendChild(popularity);
+            actorDiv.appendChild(actorImage);
+
+
+            actorCard.appendChild(actorDiv);
+            row.appendChild(actorCard);
+            this.container.appendChild(row);
+        })
+    }
+    static renderActor(actor) {
+        this.container.innerHTML = `
+      <div class="row">
+        <div class="col-md-4">
+          <img id="Actor-profile" src=${actor.ProfileUrl}> 
+        </div>
+        <div class="col-md-8">
+          <h2 id="actor-title">${actor.name}</h2>
+          
+          <p id="actor-popularity">${actor.popularity}</p>
+    
+        </div>
+      </div>
+      <h3>Actors:</h3>
+    `;
+    }
+
+
+}
+
+class Actor {
+    static PROFILE_BASE_URL = 'http://image.tmdb.org/t/p/w780';
+    constructor(json) {
+        this.name = json.name;
+        this.popularity = json.popularity
+        this.profile_path = json.profile_path
+    }
+    get ProfileUrl() {
+        return this.profile_path ? Actor.PROFILE_BASE_URL + this.profile_path : "";
+    }
+}
+
+
+
 class HomePage {
     static container = document.getElementById('container');
     static renderMovies(movies) {
-        this.container.innerHTML='';
+        this.container.innerHTML = '';
         const row = document.createElement('div');
-        row.className="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
+        row.className = "row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
         movies.forEach(movie => {
             const movieCard = document.createElement("div");
-            movieCard.className="col card";
+            movieCard.className = "col card";
             const movieDiv = document.createElement("div");
-            movieDiv.className="card-body";
+            movieDiv.className = "card-body";
             const movieImage = document.createElement("img");
             movieImage.className = "card-img-top";
             movieImage.src = `${movie.backdropUrl}`;
             const movieTitle = document.createElement("h3");
-            movieTitle.className = "card-title"; 
+            movieTitle.className = "card-title";
             movieTitle.textContent = `${movie.title}`;
 
             const genres = document.createElement('div');
-            genres.innerHTML=this.renderMoviesGenre(movie);
+            genres.innerHTML = this.renderMoviesGenre(movie);
 
             const rate = document.createElement('div');
-            rate.innerHTML=`<span>Rate : ${movie.rate}</span>`;
+            rate.innerHTML = `<span>Rate : ${movie.rate}</span>`;
 
             const description = document.createElement('div');
-            description.innerHTML=`<p>${movie.overview}</p>`;
+            description.innerHTML = `<p>${movie.overview}</p>`;
             description.id = "desc";
 
-            movieImage.addEventListener("click", function() {
+            movieImage.addEventListener("click", function () {
                 Movies.run(movie);
             });
 
@@ -120,20 +210,20 @@ class HomePage {
             this.container.appendChild(row);
         })
     }
-    static renderMoviesGenre(movie){
-            let genreList = '<span>';
-           // debugger;
-            movie.genres.forEach(id =>{
-                //debugger
-                let genreName = Genres.genresList.find(genre=>{
-                    //debugger;
-                    return genre.id === id;
-                });
-                //console.log("movie genres",genreName);
-
-                genreList+=` ${genreName.name} , `;
+    static renderMoviesGenre(movie) {
+        let genreList = '<span>';
+        // debugger;
+        movie.genres.forEach(id => {
+            //debugger
+            let genreName = Genres.genresList.find(genre => {
+                //debugger;
+                return genre.id === id;
             });
-            return genreList + '</span>';
+            //console.log("movie genres",genreName);
+
+            genreList += ` ${genreName.name} , `;
+        });
+        return genreList + '</span>';
     }
 }
 
@@ -153,6 +243,8 @@ class MoviePage {
         MovieSection.renderMovie(movie);
     }
 }
+
+
 
 class MovieSection {
     static renderMovie(movie) {
@@ -185,8 +277,8 @@ class Movie {
         this.overview = json.overview;
         this.backdropPath = json.backdrop_path;
         this.rate = json.vote_average;
-        this.genres = json.genre_ids;        ;
-       // console.log(this.genres)
+        this.genres = json.genre_ids;;
+        // console.log(this.genres)
         //console.log(json);
     }
 
@@ -195,10 +287,10 @@ class Movie {
     }
 }
 
-class AboutPage{
+class AboutPage {
     static container = document.getElementById('container');
-    static renderAbout(){
-        this.container.innerHTML=`
+    static renderAbout() {
+        this.container.innerHTML = `
         <div class="row">
             <div class="col-3">
             <img
