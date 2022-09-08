@@ -58,6 +58,33 @@ class APIService {
         return data.results.map(actor => new Actor(actor));
     }
 
+    static async fetchRelatedMovie(movie_id){
+        const url = APIService._constructUrl(`movie/${movie_id}/similar`);
+        const response = await fetch(url);
+        
+        const data = await response.json();
+        console.log(data);
+        return data.results.map(movie => new Movie(movie));
+    }
+
+    static async fetchVideos(movie_id){
+        const url = APIService._constructUrl(`movie/${movie_id}/videos`);
+        const response = await fetch(url);
+        
+        const data = await response.json();
+        console.log(data);
+        return data.results.map(movie => new Trailer(movie));
+    }
+
+    static async fetchActorsByMovie(movie_id){
+        const url = APIService._constructUrl(`movie/${movie_id}/credits`);
+        const response = await fetch(url);
+        
+        const data = await response.json();
+        console.log(data);
+        return data.cast.map(movie => new Actor(movie));
+    }
+
 }
 class Genres {
     static genresList = [];
@@ -148,6 +175,25 @@ class Actors {
       </div>
       <h3>Actors:</h3>
     `;
+    }
+    static renderMovieActors(actor){
+        const actorsDiv = document.getElementById('movie-actors');
+        
+        const card = document.createElement('div');
+            card.className ="card";
+        
+            const actorImg = document.createElement('img');
+            actorImg.className = "card-img-top";
+            actorImg.src= ProdCompany.LOGO_BASE_URL + actor.profile_path;
+        debugger;
+            const title = document.createElement('p');
+            title.className = "card-text";
+            title.innerText = actor.name;
+            
+            card.appendChild(actorImg);
+            card.appendChild(title);
+
+            actorsDiv.appendChild(card);
     }
 
 
@@ -257,6 +303,7 @@ class MoviePage {
 
 class MovieSection {
     static renderMovie(movie) {
+        debugger;
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
@@ -264,18 +311,138 @@ class MovieSection {
         </div>
         <div class="col-md-8">
           <h2 id="movie-title">${movie.title}</h2>
-          <p id="genres">${movie.genres}</p>
+          <div id="genres">${MovieSection.renderMoviesGenre(movie)}</div>
           <p id="movie-release-date">${movie.releaseDate}</p>
           <p id="movie-runtime">${movie.runtime}</p>
+          <p id="movie-language">${movie.language}</p>
+          <p id="movie-vote">${movie.rate}</p>
+          <p id="movie-vote-count">${movie.vote_count}</p>
           <h3>Overview:</h3>
           <p id="movie-overview">${movie.overview}</p>
+          
         </div>
       </div>
+      <div id="movie-actors">
       <h3>Actors:</h3>
+      </div>
+      <div id="movie-related">
+      <h3>Related Movies:</h3>
+      </div>
+      <div id="trailer">
+      <h3>Trailer:</h3>
+      </div>
+      <div id="production-company">
+      <h3>Production Companies:</h3>
+      </div>
     `;
+    this.GetMovieActors(movie);
+    this.GetRelatedMovie(movie);
+    this.GetTrailer(movie);
+    this.GetProdCompany(movie);
+
+    }
+
+    static async GetMovieActors(movie){
+        
+        const actorsList = await APIService.fetchActorsByMovie(movie.id);
+        actorsList.forEach(actor=>Actors.renderMovieActors(actor));
+    }
+    static async GetRelatedMovie(movie){
+        const relatedMovies = document.getElementById("movie-related");
+        const movies = await APIService.fetchRelatedMovie(movie.id);
+        console.log(movies);
+        movies.forEach(movie =>{
+            const card = document.createElement('div');
+            card.className ="card";
+            card.addEventListener('click',()=>{
+                debugger
+                Movies.run(movie);
+            });
+            const movieImg = document.createElement('img');
+            movieImg.className = "card-img-top";
+            movieImg.src=movie.backdropUrl;
+
+            const title = document.createElement('p');
+            title.className = "card-text";
+            title.innerText = movie.title;
+            
+            card.appendChild(movieImg);
+            card.appendChild(title);
+
+            relatedMovies.appendChild(card);
+        })
+        relatedMovies;
+    }
+    static async GetTrailer(movie){
+        const trailers = await APIService.fetchVideos(movie.id);
+        const youtubeTrailer = trailers.find(video =>{
+            return video.site === "YouTube" 
+            && video.type === "Trailer";
+        });
+        Trailer.run(youtubeTrailer);
+    }
+    static renderMoviesGenre(movie) {
+        let genreList = '<span>';
+         //debugger;
+        movie.genres.forEach(genre => {
+           
+            genreList += ` ${genre.name} , `;
+        });
+        return genreList + '</span>';
+    }
+    static GetProdCompany(movie){
+        const prodCompanies = movie.ProductionCompany;
+        const filteredList = prodCompanies.filter(
+            x => x.logo_path !== null 
+        );
+        filteredList.forEach(x=> ProdCompany.run(x));
     }
 }
+class Trailer{
+    constructor(json){
+        this.key = json.key;
+        this.id = json.id;
+        this.type = json.type;
+        this.site = json.site;
+    }
 
+    static run(){
+        const trailerDiv = document.getElementById('trailer');
+        const video = document.createElement('div');
+        video.innerHTML=`<iframe width="560" height="315" src="https://www.youtube.com/embed/${this.key}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+        trailerDiv.appendChild(video);
+    }
+
+}
+class ProdCompany{
+    static LOGO_BASE_URL = 'http://image.tmdb.org/t/p/w780';
+    
+    constructor(json){
+        this.id = json.id;
+        this.name = json.name;
+        this.logo_path = json.logo_path;
+    }
+
+    static run(company){
+        debugger;
+        const companyContainer = document.getElementById('production-company');
+        const card = document.createElement('div');
+            card.className ="card";
+        
+            const companyImg = document.createElement('img');
+            companyImg.className = "card-img-top";
+            companyImg.src=ProdCompany.LOGO_BASE_URL + company.logo_path;
+        debugger;
+            const title = document.createElement('p');
+            title.className = "card-text";
+            title.innerText = company.name;
+            
+            card.appendChild(companyImg);
+            card.appendChild(title);
+
+        companyContainer.appendChild(card);
+    }
+}
 class Movie {
     static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780';
     constructor(json) {
@@ -286,13 +453,20 @@ class Movie {
         this.overview = json.overview;
         this.backdropPath = json.backdrop_path;
         this.rate = json.vote_average;
-        this.genres = json.genre_ids;;
+        this.genres = json.genre_ids ?? json.genres;
+        this.language = json.original_language;
+        this.vote_count = json.vote_count;
+        this.prodCompany = json.production_companies;
         // console.log(this.genres)
         //console.log(json);
     }
 
     get backdropUrl() {
         return this.backdropPath ? Movie.BACKDROP_BASE_URL + this.backdropPath : "";
+    }
+
+    get ProductionCompany(){
+        return this.prodCompany ? this.prodCompany.map(comp => new ProdCompany(comp)) : "";
     }
 }
 
