@@ -85,6 +85,17 @@ class APIService {
         return data.cast.map(movie => new Actor(movie));
     }
 
+    static async fetchSearchMovie(query){
+        const url = APIService._constructUrl(`search/movie`);
+        const fullUrl = url+ `&query=${query}`;
+        const response = await fetch(fullUrl);
+        
+        const data = await response.json();
+        console.log(data);
+        debugger;
+        return data.results.map(movie => new Movie(movie));
+    }
+
 }
 class Genres {
     static genresList = [];
@@ -228,6 +239,7 @@ class HomePage {
         this.container.innerHTML = '';
         const row = document.createElement('div');
         row.className = "row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
+        debugger;
         movies.forEach(movie => {
             const movieCard = document.createElement("div");
             movieCard.className = "col card";
@@ -470,6 +482,16 @@ class Movie {
     }
 }
 
+class Search{
+    static async run(event){
+        event.preventDefault();
+        const searchInput = document.getElementById("search-input");
+        const searchValue = searchInput.value;
+        const result = await APIService.fetchSearchMovie(searchValue);
+        HomePage.renderMovies(result);
+
+    }
+}
 class AboutPage {
     static container = document.getElementById('container');
     static renderAbout() {
