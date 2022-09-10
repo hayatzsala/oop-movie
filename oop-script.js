@@ -91,11 +91,20 @@ class APIService {
         const response = await fetch(fullUrl);
         
         const data = await response.json();
-        console.log(data);
-        debugger;
+        
+        //debugger;
         return data.results.map(movie => new Movie(movie));
     }
-
+    static async fetchActorDetails(actorId){
+        const url = APIService._constructUrl(`person/${actorId}`);
+        const response = await fetch(url);
+        
+        const data = await response.json();
+        console.log("actor Data" ,data);
+        //debugger;
+        return new Actor(data);
+        
+    }
 }
 class Genres {
     static genresList = [];
@@ -140,6 +149,7 @@ class Actors {
         actors.forEach(actor => {
             const actorCard = document.createElement("div");
             actorCard.className = "col card";
+            actorCard.id = "actor";
             const actorDiv = document.createElement("div");
             actorDiv.className = "card-body";
             const actorImage = document.createElement("img");
@@ -157,7 +167,7 @@ class Actors {
 
 
             actorImage.addEventListener("click", function () {
-                Actors.renderActor(actor);
+                Actor.run(actor);
             });
 
             actorDiv.appendChild(nameTitle);
@@ -171,32 +181,21 @@ class Actors {
             this.container.appendChild(row);
         })
     }
-    static renderActor(actor) {
-        this.container.innerHTML = `
-      <div class="row">
-        <div class="col-md-4">
-          <img id="Actor-profile" src=${actor.ProfileUrl}> 
-        </div>
-        <div class="col-md-8">
-          <h2 id="actor-title">${actor.name}</h2>
-          
-          <p id="actor-popularity">${actor.popularity}</p>
+
     
-        </div>
-      </div>
-      <h3>Actors:</h3>
-    `;
-    }
     static renderMovieActors(actor){
         const actorsDiv = document.getElementById('movie-actors');
         
         const card = document.createElement('div');
-            card.className ="card";
-        
+            card.className ="col card";
+            card.id = "movie-actor";
+            card.addEventListener('click',()=>{
+                Actor.run(actor);
+            });
             const actorImg = document.createElement('img');
             actorImg.className = "card-img-top";
             actorImg.src= ProdCompany.LOGO_BASE_URL + actor.profile_path;
-        debugger;
+        //debugger;
             const title = document.createElement('p');
             title.className = "card-text";
             title.innerText = actor.name;
@@ -221,13 +220,64 @@ class Filter {
 
 class Actor {
     static PROFILE_BASE_URL = 'http://image.tmdb.org/t/p/w780';
+    static container = document.getElementById('container');
     constructor(json) {
+        this.id = json.id;
         this.name = json.name;
         this.popularity = json.popularity
         this.profile_path = json.profile_path
+        this.birthday = json.birthday;
+        this.biography = json.biography;
+        this.gender = json.gender;
+        this.placeOfBirth = json.place_of_birth;
     }
     get ProfileUrl() {
         return this.profile_path ? Actor.PROFILE_BASE_URL + this.profile_path : "";
+    }
+
+    static async run(actor){
+        const actorDetails = await APIService.fetchActorDetails(actor.id);
+        Actor.renderActor(actorDetails);
+    }
+    static renderActor(actor) {
+        this.container.innerHTML = `
+      <div class="row actor-page">
+        <div class="col-md-4">
+          <img id="Actor-profile" src=${actor.ProfileUrl}> 
+        </div>
+        <div class="col-md-8">
+          <h2 id="actor-title">${actor.name}</h2>
+          <table class="table table-borderless">
+          <tr>
+            <td>
+                Gender
+            </td>
+            <td>
+            <div id="genres">${actor.gender !== 2 ? 'Female' :'Male'}</div>
+            </td>
+          </tr>
+          <tr>
+            <td>Birthdate </td>
+            <td><p id="movie-release-date">${actor.birthday}</p></td>
+          </tr>
+          <tr>
+            <td>Place of birth</td>
+            <td><p id="movie-runtime">${actor.placeOfBirth}</p></td>
+          </tr>
+          <tr>
+            <td>Popularity</td>
+            <td>
+            <p id="movie-vote">${actor.popularity}</p></td>
+          </tr>
+          </table>
+          <h3 class="movie-sections">Overview</h3>
+          <p id="movie-overview">${actor.biography}</p>
+          
+         
+    
+        </div>
+      </div>
+    `;
     }
 }
 
@@ -239,10 +289,11 @@ class HomePage {
         this.container.innerHTML = '';
         const row = document.createElement('div');
         row.className = "row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
-        debugger;
+        //debugger;
         movies.forEach(movie => {
             const movieCard = document.createElement("div");
             movieCard.className = "col card";
+            movieCard.id = "movie";
             const movieDiv = document.createElement("div");
             movieDiv.className = "card-body";
             const movieImage = document.createElement("img");
@@ -315,36 +366,61 @@ class MoviePage {
 
 class MovieSection {
     static renderMovie(movie) {
-        debugger;
+        //debugger;
         MoviePage.container.innerHTML = `
-      <div class="row">
-        <div class="col-md-4">
+      <div class="row movie-sections">
+        <div class="col-md-5">
           <img id="movie-backdrop" src=${movie.backdropUrl}> 
         </div>
-        <div class="col-md-8">
+        <div class="col-md-7">
           <h2 id="movie-title">${movie.title}</h2>
-          <div id="genres">${MovieSection.renderMoviesGenre(movie)}</div>
-          <p id="movie-release-date">${movie.releaseDate}</p>
-          <p id="movie-runtime">${movie.runtime}</p>
-          <p id="movie-language">${movie.language}</p>
-          <p id="movie-vote">${movie.rate}</p>
-          <p id="movie-vote-count">${movie.vote_count}</p>
-          <h3>Overview:</h3>
+          <table class="table table-borderless">
+          <tr>
+            <td>
+                Categories
+            </td>
+            <td>
+            <div id="genres">${MovieSection.renderMoviesGenre(movie)}</div>
+            </td>
+          </tr>
+          <tr>
+            <td>Released on </td>
+            <td><p id="movie-release-date">${movie.releaseDate}</p></td>
+          </tr>
+          <tr>
+            <td>Time length</td>
+            <td><p id="movie-runtime">${movie.runtime}</p></td>
+          </tr>
+          <tr>
+            <td>Language</td>
+            <td><p id="movie-language">${movie.language}</p></td>
+          </tr>
+          <tr>
+            <td>Avgerage Rate</td>
+            <td>
+            <p id="movie-vote">${movie.rate}</p></td>
+          </tr>
+          <tr>
+            <td>Voters Count</td>
+            <td><p id="movie-vote-count">${movie.vote_count}</p></td>
+          </tr>
+          </table>
+          <h3 class="movie-sections">Overview</h3>
           <p id="movie-overview">${movie.overview}</p>
           
         </div>
       </div>
-      <div id="movie-actors">
-      <h3>Actors:</h3>
+      <div id="movie-actors" class="row movie-sections">
+      <h3>Actors</h3>
       </div>
-      <div id="movie-related">
-      <h3>Related Movies:</h3>
+      <div id="movie-related" class="row movie-sections">
+      <h3>Related Movies</h3>
       </div>
-      <div id="trailer">
-      <h3>Trailer:</h3>
+      <div id="trailer" class="movie-sections">
+      <h3>Trailer</h3>
       </div>
-      <div id="production-company">
-      <h3>Production Companies:</h3>
+      <div id="production-company" class="row movie-sections">
+      <h3>Production Companies</h3>
       </div>
     `;
     this.GetMovieActors(movie);
@@ -357,15 +433,19 @@ class MovieSection {
     static async GetMovieActors(movie){
         
         const actorsList = await APIService.fetchActorsByMovie(movie.id);
-        actorsList.forEach(actor=>Actors.renderMovieActors(actor));
+        const mainActors = actorsList.slice(0,5);
+        //debugger;
+        mainActors.forEach(actor=>Actors.renderMovieActors(actor));
     }
     static async GetRelatedMovie(movie){
         const relatedMovies = document.getElementById("movie-related");
         const movies = await APIService.fetchRelatedMovie(movie.id);
+        const mainMovies = movies.slice(0,5);
         console.log(movies);
-        movies.forEach(movie =>{
+        mainMovies.forEach(movie =>{
             const card = document.createElement('div');
-            card.className ="card";
+            card.className ="col card";
+            card.id = "related-movie";
             card.addEventListener('click',()=>{
                 debugger
                 Movies.run(movie);
@@ -436,15 +516,15 @@ class ProdCompany{
     }
 
     static run(company){
-        debugger;
+        //debugger;
         const companyContainer = document.getElementById('production-company');
         const card = document.createElement('div');
-            card.className ="card";
-        
+            card.className ="col card";
+            card.id = "prod-company";
             const companyImg = document.createElement('img');
             companyImg.className = "card-img-top";
             companyImg.src=ProdCompany.LOGO_BASE_URL + company.logo_path;
-        debugger;
+        //debugger;
             const title = document.createElement('p');
             title.className = "card-text";
             title.innerText = company.name;
@@ -504,7 +584,7 @@ class AboutPage {
                 alt="TMBD logo">
             </div>
             <div class="col-8">
-            <p>Thia wbsite provided you all the movies you looking for and with all info you need to know from trailers to rates and descriptions about it</p>
+            <p class="about">Thia wbsite provided you all the movies you looking for and with all info you need to know from trailers to rates and descriptions about it</p>
             </div>
         </div>
         `;
