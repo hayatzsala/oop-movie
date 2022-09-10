@@ -10,7 +10,9 @@ footer {
     background-color: #f9d342;
     color: #2F2E2A;
 }
-
+#container{
+    min-height: 500px;;
+}
 button.btn {
     background-color: #2F2E2A;
     color: #f9d342;
