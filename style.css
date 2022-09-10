@@ -147,17 +147,12 @@ form input.form-control {
     text-align: center;
     padding: 0%;
     border: 10px solid transparent;
-
-    /* background-image: url('./src/film-border.jpg');
-    background-size: contain;
-    background-repeat: no-repeat; */
 }
 
 img {
     width: 100%;
     position: relative;
     bottom: 0px;
-    /* overflow: hidden; */
 }
 
 h3.card-title {

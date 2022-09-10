@@ -12,100 +12,86 @@ class App {
 
 class APIService {
     static TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+
+    static _constructUrl(path) {
+        return `${this.TMDB_BASE_URL}/${path}?api_key=cdeca57a6b1c37accb142bc8de4bf9e6`;
+    }
+
     static async fetchMovies(filter = "now_playing") {
         const url = APIService._constructUrl(`movie/${filter}`)
         const response = await fetch(url)
         const data = await response.json()
         return data.results.map(movie => new Movie(movie))
     }
+
     static async fetchMovie(movieId) {
         const url = APIService._constructUrl(`movie/${movieId}`)
         const response = await fetch(url)
         const data = await response.json()
         return new Movie(data)
     }
-    static _constructUrl(path) {
-        return `${this.TMDB_BASE_URL}/${path}?api_key=cdeca57a6b1c37accb142bc8de4bf9e6`;
-    }
+
     static async fetchGenres() {
         const url = APIService._constructUrl(`genre/movie/list`)
         const response = await fetch(url)
         const data = await response.json()
-        //debugger;
         Genres.genresList = [...data.genres];
-        // console.log(Genres.genresList);
-        // debugger;
         return data.genres.map(genre => new Genre(genre))
     }
 
     static async fetchMoviesByGenre(gener) {
         const url = APIService._constructUrl(`discover/movie`);
         const fullUrl = `${url}&with_genres=${gener.id}`;
-        console.log(fullUrl);
-        //debugger;
         const response = await fetch(fullUrl);
-        console.log(response);
         const data = await response.json();
-        // console.log(data);
         return data.results.map(movie => new Movie(movie));
     }
+
     static async fetchActors() {
         const url = APIService._constructUrl(`person/popular`);
         const response = await fetch(url);
-        console.log(response)
         const data = await response.json();
-        // console.log(data);
         return data.results.map(actor => new Actor(actor));
     }
 
-    static async fetchRelatedMovie(movie_id){
+    static async fetchRelatedMovie(movie_id) {
         const url = APIService._constructUrl(`movie/${movie_id}/similar`);
         const response = await fetch(url);
-        
         const data = await response.json();
-        console.log(data);
         return data.results.map(movie => new Movie(movie));
     }
 
-    static async fetchVideos(movie_id){
+    static async fetchVideos(movie_id) {
         const url = APIService._constructUrl(`movie/${movie_id}/videos`);
         const response = await fetch(url);
-        
         const data = await response.json();
-        console.log(data);
         return data.results.map(movie => new Trailer(movie));
     }
 
-    static async fetchActorsByMovie(movie_id){
+    static async fetchActorsByMovie(movie_id) {
         const url = APIService._constructUrl(`movie/${movie_id}/credits`);
         const response = await fetch(url);
-        
         const data = await response.json();
-        console.log(data);
         return data.cast.map(movie => new Actor(movie));
     }
 
-    static async fetchSearchMovie(query){
+    static async fetchSearchMovie(query) {
         const url = APIService._constructUrl(`search/movie`);
-        const fullUrl = url+ `&query=${query}`;
+        const fullUrl = url + `&query=${query}`;
         const response = await fetch(fullUrl);
-        
         const data = await response.json();
-        
-        //debugger;
         return data.results.map(movie => new Movie(movie));
     }
-    static async fetchActorDetails(actorId){
+
+    static async fetchActorDetails(actorId) {
         const url = APIService._constructUrl(`person/${actorId}`);
         const response = await fetch(url);
-        
         const data = await response.json();
-        console.log("actor Data" ,data);
-        //debugger;
         return new Actor(data);
-        
+
     }
 }
+
 class Genres {
     static genresList = [];
 }
@@ -121,6 +107,7 @@ class Genre {
 
     }
     static genres = document.querySelector(".dropdown-menu");
+
     static renderGeners(genres) {
         genres.forEach(genre => {
             const genresLi = document.createElement("li")
@@ -136,12 +123,12 @@ class Genre {
 }
 
 class Actors {
-    static actorList = [];
     static container = document.getElementById('container');
     static async run() {
         const actors = await APIService.fetchActors()
         this.renderActors(actors);
     }
+
     static renderActors(actors) {
         this.container.innerHTML = '';
         const row = document.createElement('div');
@@ -182,28 +169,27 @@ class Actors {
         })
     }
 
-    
-    static renderMovieActors(actor){
-        const actorsDiv = document.getElementById('movie-actors');
-        
-        const card = document.createElement('div');
-            card.className ="col card";
-            card.id = "movie-actor";
-            card.addEventListener('click',()=>{
-                Actor.run(actor);
-            });
-            const actorImg = document.createElement('img');
-            actorImg.className = "card-img-top";
-            actorImg.src= ProdCompany.LOGO_BASE_URL + actor.profile_path;
-        //debugger;
-            const title = document.createElement('p');
-            title.className = "card-text";
-            title.innerText = actor.name;
-            
-            card.appendChild(actorImg);
-            card.appendChild(title);
 
-            actorsDiv.appendChild(card);
+    static renderMovieActors(actor) {
+        const actorsDiv = document.getElementById('movie-actors');
+
+        const card = document.createElement('div');
+        card.className = "col card";
+        card.id = "movie-actor";
+        card.addEventListener('click', () => {
+            Actor.run(actor);
+        });
+        const actorImg = document.createElement('img');
+        actorImg.className = "card-img-top";
+        actorImg.src = ProdCompany.LOGO_BASE_URL + actor.profile_path;
+        const title = document.createElement('p');
+        title.className = "card-text";
+        title.innerText = actor.name;
+
+        card.appendChild(actorImg);
+        card.appendChild(title);
+
+        actorsDiv.appendChild(card);
     }
 
 
@@ -213,14 +199,13 @@ class Filter {
     static async filterMovies(filter) {
         const movies = await APIService.fetchMovies(filter)
         HomePage.renderMovies(movies);
-
     }
-
 }
 
 class Actor {
     static PROFILE_BASE_URL = 'http://image.tmdb.org/t/p/w780';
     static container = document.getElementById('container');
+
     constructor(json) {
         this.id = json.id;
         this.name = json.name;
@@ -235,10 +220,11 @@ class Actor {
         return this.profile_path ? Actor.PROFILE_BASE_URL + this.profile_path : "";
     }
 
-    static async run(actor){
+    static async run(actor) {
         const actorDetails = await APIService.fetchActorDetails(actor.id);
         Actor.renderActor(actorDetails);
     }
+
     static renderActor(actor) {
         this.container.innerHTML = `
       <div class="row actor-page">
@@ -253,7 +239,7 @@ class Actor {
                 Gender
             </td>
             <td>
-            <div id="genres">${actor.gender !== 2 ? 'Female' :'Male'}</div>
+            <div id="genres">${actor.gender !== 2 ? 'Female' : 'Male'}</div>
             </td>
           </tr>
           <tr>
@@ -286,10 +272,12 @@ class Actor {
 class HomePage {
     static container = document.getElementById('container');
     static renderMovies(movies) {
+
         this.container.innerHTML = '';
+
         const row = document.createElement('div');
         row.className = "row row-cols-lg-3 row-cols-md-2 row-cols-sm-1";
-        //debugger;
+
         movies.forEach(movie => {
             const movieCard = document.createElement("div");
             movieCard.className = "col card";
@@ -330,15 +318,11 @@ class HomePage {
     }
     static renderMoviesGenre(movie) {
         let genreList = '<span>';
-        // debugger;
+
         movie.genres.forEach(id => {
-            //debugger
             let genreName = Genres.genresList.find(genre => {
-                //debugger;
                 return genre.id === id;
             });
-            //console.log("movie genres",genreName);
-
             genreList += ` ${genreName.name} , `;
         });
         return genreList + '</span>';
@@ -366,7 +350,7 @@ class MoviePage {
 
 class MovieSection {
     static renderMovie(movie) {
-        //debugger;
+
         MoviePage.container.innerHTML = `
       <div class="row movie-sections">
         <div class="col-md-5">
@@ -423,41 +407,40 @@ class MovieSection {
       <h3>Production Companies</h3>
       </div>
     `;
-    this.GetMovieActors(movie);
-    this.GetRelatedMovie(movie);
-    this.GetTrailer(movie);
-    this.GetProdCompany(movie);
+        this.GetMovieActors(movie);
+        this.GetRelatedMovie(movie);
+        this.GetTrailer(movie);
+        this.GetProdCompany(movie);
 
     }
 
-    static async GetMovieActors(movie){
-        
+    static async GetMovieActors(movie) {
+
         const actorsList = await APIService.fetchActorsByMovie(movie.id);
-        const mainActors = actorsList.slice(0,5);
-        //debugger;
-        mainActors.forEach(actor=>Actors.renderMovieActors(actor));
+        const mainActors = actorsList.slice(0, 5);
+        mainActors.forEach(actor => Actors.renderMovieActors(actor));
     }
-    static async GetRelatedMovie(movie){
+    static async GetRelatedMovie(movie) {
         const relatedMovies = document.getElementById("movie-related");
         const movies = await APIService.fetchRelatedMovie(movie.id);
-        const mainMovies = movies.slice(0,5);
+        const mainMovies = movies.slice(0, 5);
         console.log(movies);
-        mainMovies.forEach(movie =>{
+        mainMovies.forEach(movie => {
             const card = document.createElement('div');
-            card.className ="col card";
+            card.className = "col card";
             card.id = "related-movie";
-            card.addEventListener('click',()=>{
+            card.addEventListener('click', () => {
                 debugger
                 Movies.run(movie);
             });
             const movieImg = document.createElement('img');
             movieImg.className = "card-img-top";
-            movieImg.src=movie.backdropUrl;
+            movieImg.src = movie.backdropUrl;
 
             const title = document.createElement('p');
             title.className = "card-text";
             title.innerText = movie.title;
-            
+
             card.appendChild(movieImg);
             card.appendChild(title);
 
@@ -465,72 +448,69 @@ class MovieSection {
         })
         relatedMovies;
     }
-    static async GetTrailer(movie){
+    static async GetTrailer(movie) {
         const trailers = await APIService.fetchVideos(movie.id);
-        const youtubeTrailer = trailers.find(video =>{
-            return video.site === "YouTube" 
-            && video.type === "Trailer";
+        const youtubeTrailer = trailers.find(video => {
+            return video.site === "YouTube"
+                && video.type === "Trailer";
         });
         Trailer.run(youtubeTrailer);
     }
     static renderMoviesGenre(movie) {
         let genreList = '<span>';
-         //debugger;
         movie.genres.forEach(genre => {
-           
+
             genreList += ` ${genre.name} , `;
         });
         return genreList + '</span>';
     }
-    static GetProdCompany(movie){
+    static GetProdCompany(movie) {
         const prodCompanies = movie.ProductionCompany;
         const filteredList = prodCompanies.filter(
-            x => x.logo_path !== null 
+            x => x.logo_path !== null
         );
-        filteredList.forEach(x=> ProdCompany.run(x));
+        filteredList.forEach(x => ProdCompany.run(x));
     }
 }
-class Trailer{
-    constructor(json){
+class Trailer {
+    constructor(json) {
         this.key = json.key;
         this.id = json.id;
         this.type = json.type;
         this.site = json.site;
     }
 
-    static run(){
+    static run() {
         const trailerDiv = document.getElementById('trailer');
         const video = document.createElement('div');
-        video.innerHTML=`<iframe width="560" height="315" src="https://www.youtube.com/embed/${this.key}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+        video.innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${this.key}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
         trailerDiv.appendChild(video);
     }
 
 }
-class ProdCompany{
+class ProdCompany {
     static LOGO_BASE_URL = 'http://image.tmdb.org/t/p/w780';
-    
-    constructor(json){
+
+    constructor(json) {
         this.id = json.id;
         this.name = json.name;
         this.logo_path = json.logo_path;
     }
 
-    static run(company){
-        //debugger;
+    static run(company) {
         const companyContainer = document.getElementById('production-company');
         const card = document.createElement('div');
-            card.className ="col card";
-            card.id = "prod-company";
-            const companyImg = document.createElement('img');
-            companyImg.className = "card-img-top";
-            companyImg.src=ProdCompany.LOGO_BASE_URL + company.logo_path;
-        //debugger;
-            const title = document.createElement('p');
-            title.className = "card-text";
-            title.innerText = company.name;
-            
-            card.appendChild(companyImg);
-            card.appendChild(title);
+        card.className = "col card";
+        card.id = "prod-company";
+        const companyImg = document.createElement('img');
+        companyImg.className = "card-img-top";
+        companyImg.src = ProdCompany.LOGO_BASE_URL + company.logo_path;
+        const title = document.createElement('p');
+        title.className = "card-text";
+        title.innerText = company.name;
+
+        card.appendChild(companyImg);
+        card.appendChild(title);
 
         companyContainer.appendChild(card);
     }
@@ -549,21 +529,19 @@ class Movie {
         this.language = json.original_language;
         this.vote_count = json.vote_count;
         this.prodCompany = json.production_companies;
-        // console.log(this.genres)
-        //console.log(json);
     }
 
     get backdropUrl() {
         return this.backdropPath ? Movie.BACKDROP_BASE_URL + this.backdropPath : "";
     }
 
-    get ProductionCompany(){
+    get ProductionCompany() {
         return this.prodCompany ? this.prodCompany.map(comp => new ProdCompany(comp)) : "";
     }
 }
 
-class Search{
-    static async run(event){
+class Search {
+    static async run(event) {
         event.preventDefault();
         const searchInput = document.getElementById("search-input");
         const searchValue = searchInput.value;
