@@ -1,12 +1,26 @@
-body{
-    background-color: #2f2e2a;
+body {
+    background-color: #2F2E2A;
+    color: #f7df1e;
 
 }
-.navbar, footer {
-    background-color: #f9d342;
-    color: #2f2e2a;
-    font-weight: bold;
+
+.navbar,
+footer {
+    background-color: #f7df1e;
+    color: #2F2E2A;
 }
+
+button.btn {
+    background-color: #2F2E2A;
+    color: #f7df1e;
+}
+
+form input.form-control {
+    color: #f7df1e;
+
+
+}
+
 
 #movie-backdrop {
     width: 100%;
@@ -184,13 +198,16 @@ h3.card-title {
 .actor-page{
     color: antiquewhite;
 }
-footer{
-    text-align: center;
-    padding: 30px;;
-    color: #2f2e2a;
+
+
+footer {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    height: 900px;
 }
-footer i{
-    color: #2f2e2a;
-    font-size: 26px;
-    margin: 3px;
+
+.navbar-brand .img-fluid {
+    width: 100px;
+    height: 100px;
 }
